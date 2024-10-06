@@ -10,7 +10,6 @@ class Emulator:
         self.log_path = log_path
         self.init_script_path = init_script_path
         self.virtual_fs = {}  # Виртуальная файловая система
-        self.current_dir = "/"  # Текущая директория
         self.root_dir = "/tmp/virtual_fs"  # Корневая директория виртуальной ФС
 
     def load_tar(self):
@@ -60,12 +59,29 @@ class Emulator:
         print("\n".join(os.listdir(self.current_dir)))
 
     def cd(self, args):
-        if args:
-            new_dir = os.path.join(self.current_dir, args[0])
-            if os.path.isdir(new_dir):
-                self.current_dir = new_dir
+        if not args or args[0] == "~":
+            # Переход в начальную папку tar-архива
+            self.current_dir = os.path.join(self.root_dir)
+        else:
+            path = args[0]
+
+            if path == ".":
+                # Переход на один уровень вверх
+                self.current_dir = os.path.dirname(self.current_dir)
+                if self.current_dir == "/":
+                    self.current_dir = self.root_dir
+            elif path == "..":
+                # Переход на два уровня вверх
+                self.current_dir = os.path.dirname(os.path.dirname(self.current_dir))
+                if self.current_dir in ["/", "/tmp"]:
+                    self.current_dir = self.root_dir
             else:
-                print(f"No such directory: {args[0]}")
+                # Переход в указанную директорию
+                new_dir = os.path.join(self.current_dir, path)
+                if os.path.isdir(new_dir):
+                    self.current_dir = new_dir
+                else:
+                    print(f"No such directory: {path}")
 
     def head(self, args):
         if args:
@@ -92,6 +108,7 @@ class Emulator:
     def prompt(self):
         """Return current directory in prompt style ending with '$ '"""
         virtual_path = self.current_dir.replace(self.root_dir, "")
+
         if virtual_path == "":
             virtual_path = "/"
         return f"{virtual_path}$ "
@@ -103,7 +120,6 @@ if __name__ == "__main__":
 
     tar_path = sys.argv[1]
     log_path = sys.argv[2]
-
     init_script_path = sys.argv[3]
 
     emulator = Emulator(tar_path, log_path, init_script_path)
@@ -113,4 +129,3 @@ if __name__ == "__main__":
     while True:
         command = input(f"emulator:{emulator.prompt()} ")
         emulator.execute_command(command)
-
