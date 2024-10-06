@@ -25,5 +25,5 @@
 - Сначала скачиваем данный репозиторий себе на компьютер
 - Открываем **Git Bash**, видим перед нами окно
 
-![Окно Git Bash](https://github.com/AizenSouskeHado901/konfigHomeWork/blob/main/image%20(1).png)
+![Окно Git Bash](https://github.com/AizenSouskeHado901/konfigHomeWork/blob/main/1.png)
 
