@@ -11,12 +11,13 @@ class Emulator:
         self.init_script_path = init_script_path
         self.virtual_fs = {}  # Виртуальная файловая система
         self.current_dir = "/"  # Текущая директория
+        self.root_dir = "/tmp/virtual_fs"  # Корневая директория виртуальной ФС
 
     def load_tar(self):
         # Загрузка tar-архива и создание виртуальной ФС
         with tarfile.open(self.tar_path, "r") as tar:
-            tar.extractall("/tmp/virtual_fs")
-        self.current_dir = "/tmp/virtual_fs"
+            tar.extractall(self.root_dir)
+        self.current_dir = self.root_dir
 
     def log_action(self, action):
         # Запись действия в лог-файл
@@ -88,6 +89,13 @@ class Emulator:
             except FileNotFoundError:
                 print(f"No such file: {args[0]}")
 
+    def prompt(self):
+        """Return current directory in prompt style ending with '$ '"""
+        virtual_path = self.current_dir.replace(self.root_dir, "")
+        if virtual_path == "":
+            virtual_path = "/"
+        return f"{virtual_path}$ "
+
 if __name__ == "__main__":
     if len(sys.argv) != 4:
         print("Usage: python3 emulator.py <tar_path> <log_path> <init_script_path>")
@@ -95,6 +103,7 @@ if __name__ == "__main__":
 
     tar_path = sys.argv[1]
     log_path = sys.argv[2]
+
     init_script_path = sys.argv[3]
 
     emulator = Emulator(tar_path, log_path, init_script_path)
@@ -102,6 +111,6 @@ if __name__ == "__main__":
     emulator.execute_script()
 
     while True:
-        command = input("emulator$ ")
+        command = input(f"emulator:{emulator.prompt()} ")
         emulator.execute_command(command)
 
