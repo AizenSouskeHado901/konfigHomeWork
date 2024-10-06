@@ -28,11 +28,23 @@
 ![Окно Git Bash](https://github.com/AizenSouskeHado901/konfigHomeWork/blob/main/1.png)
 
 3. Теперь нужно перейти в директорию с программой. Для этого нужно прописать команду cd и указать ей относительный путь:
+
 cd Desktop
 
 ![Команда cd](https://github.com/AizenSouskeHado901/konfigHomeWork/blob/main/2.png)
 
 5. Для запуска самой программы нужно указать следующую команду:
-python3 <название_программы.py> <путь_к_архиву.tar> <путь_к_log-файлу.csv> <путь_к_начальному_скрипту.txt>
-6. После этого программа запущена.
 
+python3 <название_программы.py> <путь_к_архиву.tar> <путь_к_log-файлу.csv> <путь_к_начальному_скрипту.txt>
+
+7. После этого программа запущена.
+
+![Интерфейс программы](https://github.com/AizenSouskeHado901/konfigHomeWork/blob/main/3.png)
+
+---
+
+## Команда ls
+
+Команда **ls** отображает файлы и каталоги, находящиеся внутри данного каталога.
+
+![Пример использования ls](https://github.com/AizenSouskeHado901/konfigHomeWork/blob/main/4.png)
