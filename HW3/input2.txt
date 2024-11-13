@@ -1,0 +1,9 @@
+set server_name = @"my_server"
+set server_port = 8080
+
+begin
+ host := @"127.0.0.1";
+ port := ?{server_port};
+ server_name := ?{server_name};
+ root_directory := @"/var/www/html";
+end
