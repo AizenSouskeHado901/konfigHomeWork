@@ -1,0 +1,10 @@
+set db_name = @"example_db"
+set db_port = 5432
+
+begin
+ username := @"admin";
+ password := @"pass123";
+ host := @"localhost";
+ port := ?{db_port};
+ database := ?{db_name};
+end
