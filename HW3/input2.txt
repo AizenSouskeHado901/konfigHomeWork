@@ -1,9 +1,10 @@
-set server_name = @"my_server"
-set server_port = 8080
-
+set max_users = 100
+set welcome_message = @"Welcome to the system!"
 begin
- host := @"127.0.0.1";
- port := ?{server_port};
- server_name := ?{server_name};
- root_directory := @"/var/www/html";
+  current_users := 10;
+  greeting := ?{welcome_message};
+end
+begin
+  max_connections := ?{max_users};
+  message := @"Another block";
 end
