@@ -1,10 +1,6 @@
-set db_name = @"example_db"
-set db_port = 5432
-
+set max_users = 100
+set welcome_message = @"Welcome to the system!"
 begin
- username := @"admin";
- password := @"pass123";
- host := @"localhost";
- port := ?{db_port};
- database := ?{db_name};
+  current_users := 10;
+  greeting := ?{welcome_message};
 end
