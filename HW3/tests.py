@@ -1,112 +1,153 @@
 import unittest
 from io import StringIO
-import sys
-import toml
-from ta3 import parse_config, parse_value, constants
+from contextlib import redirect_stdout
 
-class TestConfigToTOML(unittest.TestCase):
+# Импортируем функции и переменные из основного файла
+from ta3 import parse_config, convert_to_toml_format, constants
 
-    def setUp(self):
-        """Сбрасываем константы перед каждым тестом"""
-        constants.clear()
+class TestConfigParser(unittest.TestCase):
 
-    def test_basic_config(self):
-        """Тест на корректное преобразование простой конфигурации"""
-        input_data = """
-        set db_name = @"example_db"
-        set db_port = 5432
+    def run_parser(self, input_lines):
+        """Утилита для тестирования всего процесса парсинга."""
+        constants.clear()  # Очищаем константы перед каждым тестом
+        config_data = parse_config(input_lines)
+        return convert_to_toml_format(config_data)
 
-        begin
-         username := @"admin";
-         password := @"pass123";
-         host := @"localhost";
-         port := ?{db_port};
-         database := ?{db_name};
-        end
-        """
-        expected_output = {
-            "username": "admin",
-            "password": "pass123",
-            "host": "localhost",
-            "port": 5432,
-            "database": "example_db"
-        }
-        config_data = parse_config(input_data.strip().splitlines())
-        self.assertEqual(config_data, expected_output)
+    def test_simple_block(self):
+        input_lines = [
+            "set max_users = 100",
+            "begin",
+            "  current_users := 10;",
+            "  max := ?{max_users};",
+            "end"
+        ]
+        expected_output = """begin
+  current_users := 10;
+  max := 100;
+end"""
+        self.assertEqual(self.run_parser(input_lines), expected_output)
 
-    def test_server_config(self):
-        """Тест на корректное преобразование конфигурации сервера"""
-        input_data = """
-        set server_name = @"my_server"
-        set server_port = 8080
+    def test_multiple_blocks(self):
+        input_lines = [
+            "set greeting = @\"Hello!\"",
+            "begin",
+            "  message := ?{greeting};",
+            "end",
+            "begin",
+            "  count := 42;",
+            "end"
+        ]
+        expected_output = """begin
+  message := @"Hello!";
+end
+begin
+  count := 42;
+end"""
+        self.assertEqual(self.run_parser(input_lines), expected_output)
 
-        begin
-         host := @"127.0.0.1";
-         port := ?{server_port};
-         server_name := ?{server_name};
-         root_directory := @"/var/www/html";
-        end
-        """
-        expected_output = {
-            "host": "127.0.0.1",
-            "port": 8080,
-            "server_name": "my_server",
-            "root_directory": "/var/www/html"
-        }
-        config_data = parse_config(input_data.strip().splitlines())
-        self.assertEqual(config_data, expected_output)
+    def test_string_handling(self):
+        input_lines = [
+            "begin",
+            "  text := @\"This is a test string\";",
+            "end"
+        ]
+        expected_output = """begin
+  text := @"This is a test string";
+end"""
+        self.assertEqual(self.run_parser(input_lines), expected_output)
 
-    def test_invalid_syntax(self):
-        """Тест на обработку ошибки при некорректном синтаксисе"""
-        input_data = """
-        set db_name = @"example_db"
-        
-        begin
-         username := "admin";  # Неправильный синтаксис, отсутствует @ в строке
-         password := @"pass123";
-        end
-        """
-        with self.assertRaises(SyntaxError):
-            parse_config(input_data.strip().splitlines())
+    def test_set_and_use_constants(self):
+        input_lines = [
+            "set number = 123",
+            "set text = @\"Sample text\"",
+            "begin",
+            "  num := ?{number};",
+            "  str := ?{text};",
+            "end"
+        ]
+        expected_output = """begin
+  num := 123;
+  str := @"Sample text";
+end"""
+        self.assertEqual(self.run_parser(input_lines), expected_output)
+
+    def test_missing_begin(self):
+        input_lines = [
+            "  some_key := 1;",
+            "end"
+        ]
+        with self.assertRaises(SyntaxError) as context:
+            self.run_parser(input_lines)
+        self.assertEqual(str(context.exception), "Присваивание значения возможно только внутри 'begin ... end'.")
 
     def test_unknown_constant(self):
-        """Тест на ошибку при использовании неизвестной константы"""
-        input_data = """
-        begin
-         username := ?{undefined_constant};
-        end
-        """
+        input_lines = [
+            "begin",
+            "  some_key := ?{unknown};",
+            "end"
+        ]
         with self.assertRaises(ValueError) as context:
-            parse_config(input_data.strip().splitlines())
-        self.assertIn("Неизвестная константа", str(context.exception))
+            self.run_parser(input_lines)
+        self.assertEqual(str(context.exception), "Неизвестная константа: unknown")
 
-    def test_value_parsing(self):
-        """Тест на корректное парсинг значений: числа, строки и ссылки на константы"""
-        constants["existing_constant"] = "constant_value"
-        self.assertEqual(parse_value("123"), 123)  # Число
-        self.assertEqual(parse_value('@"string_value"'), "string_value")  # Строка с правильным синтаксисом
-        self.assertEqual(parse_value("?{existing_constant}"), "constant_value")  # Константа
+    def test_invalid_syntax(self):
+        input_lines = [
+            "invalid syntax"
+        ]
+        with self.assertRaises(SyntaxError) as context:
+            self.run_parser(input_lines)
+        self.assertEqual(str(context.exception), "Неверная строка: invalid syntax")
 
+    def test_nested_begin(self):
+        input_lines = [
+            "begin",
+            "  inner_key := 1;",
+            "  begin",
+            "    nested_key := 2;",
+            "  end",
+            "end"
+        ]
+        with self.assertRaises(SyntaxError) as context:
+            self.run_parser(input_lines)
+        self.assertEqual(str(context.exception), "Невозможно вложить 'begin' в 'begin'.")
 
-    def test_output_to_toml(self):
-        """Тест на проверку финального вывода в формате TOML"""
-        input_data = """
-        set example_key = @"example_value"
+    def test_empty_input(self):
+        input_lines = []
+        expected_output = ""
+        self.assertEqual(self.run_parser(input_lines), expected_output)
 
-        begin
-         key1 := @"value1";
-         key2 := ?{example_key};
-         key3 := 42;
-        end
-        """
-        expected_output = {
-            "key1": "value1",
-            "key2": "example_value",
-            "key3": 42
-        }
-        config_data = parse_config(input_data.strip().splitlines())
-        toml_output = toml.dumps(config_data)
-        self.assertEqual(toml.loads(toml_output), expected_output)
+    def test_just_constants(self):
+        input_lines = [
+            "set pi = 3.14",
+            "set message = @\"Hello, World!\""
+        ]
+        expected_output = ""
+        self.assertEqual(self.run_parser(input_lines), expected_output)
+
+    def test_single_value_assignment(self):
+        input_lines = [
+            "begin",
+            "  value := 42;",
+            "end"
+        ]
+        expected_output = """begin
+  value := 42;
+end"""
+        self.assertEqual(self.run_parser(input_lines), expected_output)
+
+    def test_string_constant(self):
+        input_lines = [
+            "set greeting = @\"Hi, there!\"",
+            "begin",
+            "  message := ?{greeting};",
+            "end"
+        ]
+        expected_output = """begin
+  message := @"Hi, there!";
+end"""
+        self.assertEqual(self.run_parser(input_lines), expected_output)
+
 
 if __name__ == "__main__":
     unittest.main()
+
