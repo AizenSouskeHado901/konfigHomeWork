@@ -1,6 +1,5 @@
 import re
 import sys
-import toml
 from typing import Union, Dict
 
 # Словарь для хранения констант
@@ -18,11 +17,11 @@ patterns = {
 
 def parse_value(value: str) -> Union[int, str, None]:
     """Парсит значение: число, строка или ссылка на константу."""
-    if re.match(r"^\d+$", value):
+    if re.match(r"^\d+$", value):  # Число
         return int(value)
-    if re.match(patterns["string"], value):
+    if re.match(patterns["string"], value):  # Строка
         return re.match(patterns["string"], value).group(1)
-    if re.match(patterns["constant_ref"], value):
+    if re.match(patterns["constant_ref"], value):  # Ссылка на константу
         name = re.match(patterns["constant_ref"], value).group(1)
         if name in constants:
             return constants[name]
@@ -32,7 +31,7 @@ def parse_value(value: str) -> Union[int, str, None]:
 
 def parse_config(input_lines):
     """Парсит конфигурацию и возвращает структуру данных в виде словаря."""
-    result = {}
+    result = []
     current_dict = None
 
     for line in input_lines:
@@ -44,7 +43,7 @@ def parse_config(input_lines):
         elif re.match(patterns["end"], line):
             if current_dict is None:
                 raise SyntaxError("Найден 'end' без соответствующего 'begin'.")
-            result.update(current_dict)
+            result.append(current_dict)
             current_dict = None
         elif re.match(patterns["set"], line):
             name, value = re.match(patterns["set"], line).groups()
@@ -58,12 +57,25 @@ def parse_config(input_lines):
             raise SyntaxError(f"Неверная строка: {line}")
     return result
 
+def convert_to_toml_format(data: list) -> str:
+    """Преобразует список блоков данных в формат TOML с соблюдением правил."""
+    toml_lines = []
+    for block in data:
+        toml_lines.append("begin")
+        for key, value in block.items():
+            if isinstance(value, str):  # Строки
+                toml_lines.append(f'  {key} := @"{value}";')
+            else:  # Числа
+                toml_lines.append(f"  {key} := {value};")
+        toml_lines.append("end")
+    return "\n".join(toml_lines)
+
 def main():
     # Считываем входные данные из stdin
     input_lines = sys.stdin.readlines()
     try:
         config_data = parse_config(input_lines)
-        toml_output = toml.dumps(config_data)
+        toml_output = convert_to_toml_format(config_data)
         print(toml_output)
     except Exception as e:
         print(f"Ошибка: {e}", file=sys.stderr)
