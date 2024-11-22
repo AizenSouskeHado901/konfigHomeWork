@@ -13,3 +13,9 @@
 
 ![Screenshot_1](https://github.com/user-attachments/assets/2401642c-0b72-4e55-b410-1086a97a6672)
 ![Screenshot_2](https://github.com/user-attachments/assets/7378ae9f-dc7a-4caf-9308-f07f4c74e1ad)
+
+Размер команды: 5 байт. Операнд: поле B. Результат: новый элемент на стеке.
+
+Тест (A=6, B=295):
+
+0x3F, 0x6E, 0x01, 0x00, 0x00
