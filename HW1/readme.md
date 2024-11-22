@@ -26,13 +26,15 @@
 1. Сначала скачиваем данный репозиторий себе на компьютер
 2. Открываем **Git Bash**, видим перед нами окно
 
-![Окно Git Bash](https://github.com/AizenSouskeHado901/konfigHomeWork/blob/main/photo/1.png)
+![1](https://github.com/user-attachments/assets/48cf10ef-c22a-4bf6-97d6-3469d2bb7cbb)
+
 
 3. Теперь нужно перейти в директорию с программой. Для этого нужно прописать команду cd и указать ей относительный путь:
 
 cd Desktop
 
-![Команда cd](https://github.com/AizenSouskeHado901/konfigHomeWork/blob/main/photo/2.png)
+![2](https://github.com/user-attachments/assets/7a44fcb8-14a0-43b5-8b73-822017fe5743)
+
 
 4. Для запуска самой программы нужно указать следующую команду:
 
@@ -41,7 +43,8 @@ python3 <название_программы.py> <путь_к_архиву.tar> 
 
 5. После этого программа запущена.
 
-![Интерфейс программы](https://github.com/AizenSouskeHado901/konfigHomeWork/blob/main/photo/3.png)
+![3](https://github.com/user-attachments/assets/31ed8514-1195-4a57-8c34-d1e370a6e70e)
+
 
 ---
 
@@ -49,7 +52,8 @@ python3 <название_программы.py> <путь_к_архиву.tar> 
 
 Команда **ls** отображает файлы и каталоги, находящиеся внутри данного каталога.
 
-![Пример использования ls](https://github.com/AizenSouskeHado901/konfigHomeWork/blob/main/photo/4.png)
+![4](https://github.com/user-attachments/assets/27621214-62e4-4a17-9ff9-72c056dceace)
+
 
 ---
 
@@ -57,14 +61,16 @@ python3 <название_программы.py> <путь_к_архиву.tar> 
 
 Команда **cd** изменяет текущий каталог на указанный. Если не передан аргумент, то возвращает в домашний каталог.
 
-![Пример использования cd](https://github.com/AizenSouskeHado901/konfigHomeWork/blob/main/photo/5.png)
+![5](https://github.com/user-attachments/assets/1cf458db-4abe-41e6-b167-fc20cc8b9179)
+
 
 
 ## Команда head
 
 Команда **head** выводит первые 10 строк файла.
 
-![Пример использования head](https://github.com/AizenSouskeHado901/konfigHomeWork/blob/main/photo/6.png)
+![6](https://github.com/user-attachments/assets/ecdeccea-6691-4e10-a115-4017ab3f2995)
+
 
 ---
 
@@ -72,7 +78,8 @@ python3 <название_программы.py> <путь_к_архиву.tar> 
 
 Команда **wc** выводит количество переноса строки, количество слов и количество символов в файле.
 
-![Пример использования wc](https://github.com/AizenSouskeHado901/konfigHomeWork/blob/main/photo/7.png)
+![7](https://github.com/user-attachments/assets/a1de97c5-4f7b-4b12-823b-eb5fc444b40a)
+
 
 ## Команда exit
 
